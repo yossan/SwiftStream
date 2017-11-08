@@ -92,5 +92,3 @@ public func traverse<T>(_ aStream: Stream<T>, _ body: (Stream<T>) -> ()) {
         traverse(list(), body)
     }
 }
-
-func test
