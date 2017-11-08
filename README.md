@@ -14,12 +14,12 @@ Stream can represent a infinitte sequence:
 
 ```infinite_integers.swift
 func integers() -> Stream<Int> {
-        func helper(_ n: Int) -> Stream<Int> {
-                    return Stream.cons(n, { (_) in
-                                return helper(n+1)
-                                        })
-                        }
-                            return helper(0)
+    func helper(_ n: Int) -> Stream<Int> {
+        return Stream.cons(n, { (_) in
+            return helper(n+1)
+        })
+    }
+    return helper(0)
 }
 ```
 
