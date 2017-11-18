@@ -52,15 +52,19 @@ public func reverse<T>(_ aStream: Stream<T>) -> Stream<T> {
     return helper(aStream, .empty)
 }
 
-public func reduce<T, R>(_ aStream: Stream<T>, _ initialResult: R, _ nextPartialResult: @escaping (R, T) -> (R)) -> R {
-    var accumulator: R = initialResult
-    switch aStream {
-    case .empty:
-        return accumulator
-    case .cons(let value, let list):
-        accumulator = nextPartialResult(accumulator, value)
-        accumulator = reduce(list(), accumulator, nextPartialResult)
-        return accumulator
+public func reduce<T, R>(_ aStream: Stream<T>) -> (R) -> ((R, T) -> (R)) -> R {
+    return { (initialResult: R) in
+        return { (transform: ((R, T)->R)) in
+            switch aStream {
+            case .empty:
+                return initialResult
+            case .cons(let value, let tail):
+            //print("reduce cons", value)
+                var accumulator = transform(initialResult, value)
+                accumulator = reduce(tail())(accumulator)(transform)
+                return accumulator
+            }
+        }
     }
 }
 
@@ -73,14 +77,22 @@ public func map<T, R>(_ aStream: Stream<T>, _ transform: @escaping (T) -> (R)) -
     }
 }
 
-func take<T>(_ aStream: Stream<T>, _ n: Int) -> Stream<T> {
-    guard n > 0 else { return .empty}
-    switch aStream {
-    case .empty:
-        return .empty
-    case .cons(let head, let tail): 
-        return .cons(head, { take(tail(), n-1) })
+func take<T>(_ aStream: Stream<T>) -> (Int) -> (Stream<T>) {
+    func helper(_ accumulator: Stream<T>) -> ((Int) -> Stream<T>) {
+        return { (n: Int) in
+            switch accumulator {
+            case .empty:
+                return accumulator
+            case .cons(let head, let tail): 
+                if n == 0 {
+                    return .empty
+                } else {
+                    return .cons(head, { helper(tail())(n-1) })
+                }
+            }
+        }
     }
+    return helper(aStream)
 }
 
 public func traverse<T>(_ aStream: Stream<T>, _ body: (Stream<T>) -> ()) {
@@ -92,3 +104,4 @@ public func traverse<T>(_ aStream: Stream<T>, _ body: (Stream<T>) -> ()) {
         traverse(list(), body)
     }
 }
+

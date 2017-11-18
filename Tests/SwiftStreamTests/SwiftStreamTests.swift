@@ -36,7 +36,7 @@ class SwiftStreamTests: XCTestCase {
 
     func testReduce() {
         let sum = { (aStream: SwiftStream.Stream<Int>) -> (Int) in
-            return reduce(aStream, 0, { (accumulator, value) in 
+            return reduce(aStream)(0)({ (accumulator, value) in 
                 var result = accumulator
                 result += value
                 return result
@@ -51,7 +51,7 @@ class SwiftStreamTests: XCTestCase {
     func testMap() {
         
         let sum = { (aStream: SwiftStream.Stream<Int>) -> (Int) in
-            return reduce(aStream, 0, { (accumulator, value) in 
+            return reduce(aStream)(0)({ (accumulator, value) in 
                 var result = accumulator
                 result += value
                 return result
@@ -64,10 +64,10 @@ class SwiftStreamTests: XCTestCase {
     }
 
     func array<T>(_ aStream: SwiftStream.Stream<T>) -> [T] {
-        return reduce(aStream, []) { (accumulator, value) in
+        return reduce(aStream)([])({ (accumulator: [T], value) in
             var result = accumulator
             result.append(value)
             return result
-        }
+        })
     }
 }
